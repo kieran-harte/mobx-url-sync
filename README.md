@@ -1,6 +1,6 @@
-# MobxUrlSync
+# mobx-url-sync
 
-**MobxUrlSync** is a lightweight TypeScript library that synchronizes MobX store properties with URL query parameters. It provides default serialization for primitives and allows you to add custom serializers for complex types. URL updates are debounced and only occur when necessary.
+Synchronizes MobX observables with URL query parameters.
 
 ## Features
 

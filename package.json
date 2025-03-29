@@ -16,5 +16,11 @@
   },
   "peerDependencies": {
     "mobx": "^6.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kieran-harte/mobx-url-sync.git"
+  },
+  "homepage": "https://github.com/kieran-harte/mobx-url-sync",
+  "bugs": "https://github.com/kieran-harte/mobx-url-sync/issues"
 }

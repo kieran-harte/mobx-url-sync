@@ -1,12 +1,21 @@
 {
   "name": "mobx-url-sync",
-  "version": "1.0.1",
-  "main": "index.js",
+  "version": "1.0.2",
+  "keywords": [
+    "mobx",
+    "url",
+    "sync"
+  ],
+  "author": "Kieran Harte",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "files": [
+    "dist/**/*"
+  ],
   "license": "MIT",
   "description": "",
   "devDependencies": {

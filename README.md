@@ -40,7 +40,7 @@ export class CounterStore {
   constructor() {
     makeAutoObservable(this)
     // Register the counter property to sync with the "counter" query parameter.
-    mobxUrlSync.registerField(this, 'counter', 'counter')
+    mobxUrlSync.register(this, 'counter', 'counter')
   }
 
   increment() {
@@ -64,11 +64,11 @@ After calling `counterStore.increment()` the URL will change to `?counter=1`.
 #### Constructor
 
 ```typescript
-new MobXUrlSync(defaultSerializers?: Serializers, options?: { throttleDelay?: number })
+new MobXUrlSync(defaultSerializers?: Serializers, options?: { debounceDelay?: number })
 ```
 
 - **defaultSerializers:** Custom serializers for complex types.
-- **options.throttleDelay:** Delay (in ms) before updating the URL (default is 500ms).
+- **options.debounceDelay:** Delay (in ms) before updating the URL (default is 500ms).
 
 #### Method: `registerField`
 

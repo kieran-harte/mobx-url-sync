@@ -41,6 +41,7 @@ export class MobXURLSync<QP extends string> {
   private debounceDelay: number
   private fields = new Map<QP, SyncedField<QP>>()
   private updateTimer?: number
+  private lastUpdateTime: number = 0
 
   constructor(serializers: Serializers = {}, options: UrlSyncOptions = {}) {
     this.serializers = serializers
@@ -79,7 +80,7 @@ export class MobXURLSync<QP extends string> {
     // Determine defaultValue
     const defaultVal = config.defaultValue ?? store[property]
 
-    // Determine serializer/deserializer
+    // Determine (de)serializer
     let { serialize, deserialize } = config
     if (!serialize || !deserialize) {
       const auto = this.getAutoSerializer(defaultVal)
@@ -96,17 +97,16 @@ export class MobXURLSync<QP extends string> {
       )
     }
 
-    // Apply initial URL value if present
+    // Load initial value from URL if present
     const params = new URLSearchParams(window.location.search)
     if (params.has(queryParam)) {
       try {
         store[property] = deserialize(params.get(queryParam)!)
       } catch {
-        // keep default if parse fails
+        // ignore parse errors
       }
     }
 
-    // Save field
     this.fields.set(queryParam, {
       store,
       property: String(property),
@@ -116,11 +116,11 @@ export class MobXURLSync<QP extends string> {
       deserialize
     })
 
-    // Intercept changes to trigger the global reaction
+    // Intercept changes to trigger our reaction
     intercept(store as any, property as string, change => change)
   }
 
-  /** Build the full query string from all registered fields */
+  /** Build the combined query string based on current store values */
   private buildQueryString(): string {
     const params = new URLSearchParams()
     this.fields.forEach(f => {
@@ -133,20 +133,42 @@ export class MobXURLSync<QP extends string> {
     return params.toString()
   }
 
-  /** Schedule a debounced URL update */
+  /**
+   * Schedule or immediately perform the URL update.
+   * - If more than `debounceDelay` ms have passed since `lastUpdateTime`, update now.
+   * - Otherwise, debounce for the remaining time.
+   */
   private scheduleUrlUpdate() {
-    clearTimeout(this.updateTimer)
-    this.updateTimer = window.setTimeout(() => {
-      this.applyUrlUpdate()
+    const now = Date.now()
+    const elapsed = now - this.lastUpdateTime
+
+    // Clear any pending timer
+    if (this.updateTimer != null) {
+      clearTimeout(this.updateTimer)
       this.updateTimer = undefined
-    }, this.debounceDelay)
+    }
+
+    if (this.lastUpdateTime === 0 || elapsed >= this.debounceDelay) {
+      // Enough time has passed — update immediately
+      this.applyUrlUpdate()
+    } else {
+      // Debounce for the remaining delay
+      const wait = this.debounceDelay - elapsed
+      this.updateTimer = window.setTimeout(() => {
+        this.applyUrlUpdate()
+        this.updateTimer = undefined
+      }, wait)
+    }
   }
 
-  /** Perform a single URL update with the latest query string */
+  /** Actually write the new URL based on the latest query string */
   private applyUrlUpdate() {
+    this.lastUpdateTime = Date.now()
     const qs = this.buildQueryString()
     const base = window.location.pathname
     const newUrl = qs ? `${base}?${qs}` : base
+
+    // Only replace state if it’s truly changed
     if (
       newUrl !==
       window.location.href.split('?')[0] + window.location.search
@@ -155,7 +177,7 @@ export class MobXURLSync<QP extends string> {
     }
   }
 
-  /** Infer a serializer for primitives or any registered custom types */
+  /** Infer a default serializer for primitives or any registered custom type */
   private getAutoSerializer<T>(val: T) {
     if (['string', 'number', 'boolean'].includes(typeof val)) {
       return {

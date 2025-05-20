@@ -26,13 +26,13 @@ This examples shows a MobX store holding a counter property which is automatical
 ```typescript
 // counterStore.ts
 import { makeAutoObservable } from 'mobx'
-import { MobxUrlSync } from 'mobx-url-sync'
+import { MobXUrlSync } from 'mobx-url-sync'
 
 // Define allowed query parameter(s) (here, only "counter" is allowed)
 type QueryParams = 'counter'
 
-// Initialize MobxUrlSync (no custom serializers needed for numbers)
-const mobxUrlSync = new MobxUrlSync<QueryParams>()
+// Initialize MobXUrlSync (no custom serializers needed for numbers)
+const mobxUrlSync = new MobXUrlSync<QueryParams>()
 
 export class CounterStore {
   counter: number = 0
@@ -59,12 +59,12 @@ After calling `counterStore.increment()` the URL will change to `?counter=1`.
 
 ## API Reference
 
-### Class: `MobxUrlSync<QueryParameter extends string>`
+### Class: `MobXUrlSync<QueryParameter extends string>`
 
 #### Constructor
 
 ```typescript
-new MobxUrlSync(defaultSerializers?: Serializers, options?: { throttleDelay?: number })
+new MobXUrlSync(defaultSerializers?: Serializers, options?: { throttleDelay?: number })
 ```
 
 - **defaultSerializers:** Custom serializers for complex types.
